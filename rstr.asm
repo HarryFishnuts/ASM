@@ -150,7 +150,7 @@ PUSHA
 MOV eax, [ebp + 12]		; eax = param 2
 MOV ebx, [ebp + 8]		; ebx = param 1
 MOV ecx, [ebp + 16]		; ecx = drawchar
-MOV edx, 8			; edx = h
+MOV edx, fbh			; edx = h
 MUL edx				; eax *= 8
 ADD eax, ebx			; eax += ebx
 
@@ -174,9 +174,7 @@ PUSH ebp
 MOV ebp, esp
 PUSHA
 
-; {routine stack layout}
-; ebp - 16 = H Limit (deprecated)
-; ebp - 12 = W Lmit  (deprectaed)
+; { routine stack layout }
 ; ebp - 8  = X counter
 ; ebp - 4  = Y counter
 ; === ebp ============
@@ -186,30 +184,17 @@ PUSHA
 ; ebp + 16 = W
 ; ebp + 20 = H
 ; ebp + 24 = drawchar
-SUB esp, 16			; allocate 4 32bit vars
+SUB esp, 8			; allocate 4 32bit vars
 
 MOV dword [ebp - 4], 0		; [ebp-4] = y counter
 NOP				; [ebp-8] = x counter (to be assigned)
 
-MOV eax, [ebp + 16]		; get W value
-MOV [ebp - 12], eax		; [ebp-12] = W limit
-
-MOV eax, [ebp + 20]		; get H value
-MOV [ebp - 16], eax		; [ebp-16] = H limit
-
 .lpy:				; Y axis loop
-
-  PUSH 'y'
-  CALL _dbgprt
-  ADD esp, 4
 
   MOV dword [ebp - 8], 0	; reset X counter
 
   .lpx:				; X axis loop
 
-    PUSH 'x'
-    CALL _dbgprt
-    ADD esp, 4
     MOV eax, [ebp + 24]		; get drawchar param
     PUSH eax			; push drawchar param
 
@@ -234,7 +219,7 @@ MOV [ebp - 16], eax		; [ebp-16] = H limit
   CMP [ebp - 4], eax		; compare w/ H limit
   JL  .lpy 			; if less, repeat
 
-ADD esp, 16			; clean stack
+ADD esp, 8			; clean stack
 
 POPA
 MOV esp, ebp
@@ -252,8 +237,8 @@ CALL setpix
 ADD esp, 12
 
 PUSH '8'
-PUSH 1
-PUSH 1
+PUSH 3
+PUSH 3
 PUSH 5
 PUSH 5
 CALL setrect
